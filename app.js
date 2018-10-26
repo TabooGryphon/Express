@@ -7,12 +7,24 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var catalogRouter = require('./routes/catalog');  //Import routes for "catalog" area of site
+var compression = require('compression');
+var helmet = require('helmet');
 
 var app = express();
 
+app.use(helmet());
+
+app.use(compression()); //Compress all routes
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/catalog', catalogRouter);  // Add catalog routes to middleware chain.
+
 //Set up mongoose connection
 var mongoose = require('mongoose');
-var mongoDB = 'mongodb://express_library:express2@ds149672.mlab.com:49672/express_library';
+var mongoDB = process.env.MONGODB_URI || 'mongodb://express_library:express2@ds149672.mlab.com:49672/express_library';
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
